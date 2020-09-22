@@ -29,6 +29,9 @@
     "prettier"
   ],
   "rules": {
+    "react/jsx-one-expression-per-line": "off",
+    "prettier/prettier": "error",
+    "react/prop-types": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-filename-extension": [
@@ -40,6 +43,10 @@
       }
     ],
     "import/prefer-default-export": "off",
+    "react/jsx-props-no-spreading": "off",
+    "@typescript-eslint/camelcase": "off",
+    "import/no-duplicates": "off",
+    "no-unused-expressions": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
@@ -47,8 +54,7 @@
         "ts": "never",
         "tsx": "never"
       }
-    ],
-    "prettier/prettier": "error"
+    ]
   },
   "settings": {
     "import/resolver": {
