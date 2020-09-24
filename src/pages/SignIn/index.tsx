@@ -5,6 +5,7 @@ import {
   ScrollView,
   Platform,
   View,
+  TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Form } from '@unform/mobile';
@@ -26,6 +27,7 @@ import {
 const SignIn: React.FC = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormHandles>(null);
+  const passwordInputRef = useRef<TextInput>(null);
 
   const handleSignIn = useCallback((data: any) => {
     console.log(data);
@@ -47,8 +49,29 @@ const SignIn: React.FC = () => {
             <Title>Faça seu logon</Title>
           </View>
           <Form ref={formRef} onSubmit={handleSignIn}>
-            <Input name="email" icon="mail" placeholder="E-mail" />
-            <Input name="password" icon="lock" placeholder="Senha" />
+            <Input
+              name="email"
+              icon="mail"
+              autoCorrect={false}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="E-mail"
+              returnKeyType="next"
+              onSubmitEditing={() => {
+                passwordInputRef.current?.focus();
+              }}
+            />
+            <Input
+              ref={passwordInputRef}
+              name="password"
+              secureTextEntry
+              icon="lock"
+              placeholder="Senha"
+              returnKeyType="send"
+              onSubmitEditing={() => {
+                formRef.current?.submitForm();
+              }}
+            />
             <Button
               onPress={() => {
                 formRef.current?.submitForm();
