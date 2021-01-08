@@ -12,9 +12,17 @@ interface SignInCredentials {
   email: string;
   password: string;
 }
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string;
+}
+
 interface AuthState {
   token: string;
-  user: any;
+  user: User;
 }
 
 interface AuthContextData {
