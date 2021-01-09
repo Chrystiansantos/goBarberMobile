@@ -42,11 +42,13 @@
         ]
       }
     ],
+    "camelcase": "off",
     "import/prefer-default-export": "off",
     "react/jsx-props-no-spreading": "off",
     "@typescript-eslint/camelcase": "off",
     "import/no-duplicates": "off",
     "no-unused-expressions": "off",
+    "no-use-before-define":"off",
     "import/extensions": [
       "error",
       "ignorePackages",

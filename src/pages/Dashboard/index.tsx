@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../../Hooks/auth';
@@ -10,14 +10,34 @@ import {
   UserName,
   ProfileButton,
   UserAvatar,
+  ProvidersList,
 } from './styles';
+import api from '../../services/api';
+
+export interface Provider {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
 
 const Dashboard: React.FC = () => {
   const { signOut, user } = useAuth();
   const { navigate } = useNavigation();
+
+  const [providers, setProviders] = useState<Provider[]>([]);
+
   const navigateToProfile = useCallback(() => {
-    navigate('Profile');
-  }, [navigate]);
+    // navigate('Profile');
+    signOut();
+  }, [signOut]);
+
+  useEffect(() => {
+    async function getProvider() {
+      const { data } = await api.get('/providers');
+      setProviders(data);
+    }
+    getProvider();
+  }, []);
 
   return (
     <Container>
@@ -30,6 +50,11 @@ const Dashboard: React.FC = () => {
           <UserAvatar source={{ uri: user.avatar_url }} />
         </ProfileButton>
       </Header>
+      <ProvidersList
+        data={providers}
+        keyExtractor={provider => provider.id}
+        renderItem={({ item }) => <UserName>{item.name}</UserName>}
+      />
     </Container>
   );
 };
