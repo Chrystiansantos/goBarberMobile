@@ -26,7 +26,7 @@ interface AuthState {
 }
 
 interface AuthContextData {
-  user: any;
+  user: User;
   loading: boolean;
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
