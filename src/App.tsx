@@ -10,7 +10,7 @@ import Routes from './Routes';
 const App: React.FC = () => (
   // Sempre preciso utilizar esse navigationContainer por volta das rotas
   <NavigationContainer>
-    <StatusBar barStyle="light-content" backgroundColor="#312e38" />
+    <StatusBar barStyle="light-content" backgroundColor="#312e38" translucent />
     <AppProvider>
       <View style={{ backgroundColor: '#312e38', flex: 1 }}>
         <Routes />
