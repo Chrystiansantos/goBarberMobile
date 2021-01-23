@@ -173,6 +173,9 @@ const CreateAppointment: React.FC = () => {
     selectedProviderName,
     selectedProvider,
   ]);
+  const navigateToProfile = useCallback(() => {
+    navigate('Profile');
+  }, [navigate]);
 
   return (
     <Container>
