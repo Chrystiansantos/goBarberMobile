@@ -12,6 +12,7 @@ import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 import Icon from 'react-native-vector-icons/Feather';
+import ImagePicker from 'react-native-image-crop-picker';
 import Input from '../../Components/Input';
 import Button from '../../Components/Button';
 import api from '../../services/api';
@@ -27,28 +28,64 @@ import {
 import getValidationErros from '../../util/getValidationErros';
 import { useAuth } from '../../Hooks/auth';
 
-interface SignUpFormData {
-  nome: string;
+interface ProfileFormData {
+  name: string;
   email: string;
+  old_password: string;
   password: string;
+  password_confirmation: string;
 }
 
 const Profile: React.FC = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
-  const oldPasswordInputRef = useRef(null);
-  const confirmPasswordInputRef = useRef(null);
+  const oldPasswordInputRef = useRef<TextInput>(null);
+  const confirmPasswordInputRef = useRef<TextInput>(null);
   const formRef = useRef<FormHandles>(null);
 
   const navigation = useNavigation();
-  const { user } = useAuth();
+  const { user, updatedUser } = useAuth();
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleSignUp = useCallback(
-    async (data: SignUpFormData) => {
+  const handleUpdateAvatar = useCallback(() => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      if (image.sourceURL) {
+        console.log(JSON.stringify(image));
+        const data = new FormData();
+        data.append('avatar', {
+          type: 'image/jpeg',
+          name: `${user.id}.jpeg`,
+          uri: image.sourceURL,
+        } as any);
+
+        api.patch('/user/avatar', data).then(response => {
+          updatedUser(response.data);
+        });
+      }
+
+      // data.append('avatar', {
+      //   type: 'image/jpeg',
+      //   name: `${user.id}.jpeg`,
+      //   uri: image.path,
+      // } as any);
+
+      // data.append('avatar', image.path, `${user.id}.jpeg`);
+
+      // api.patch('/user/avatar', data).then(resp => {
+      //   console.log(resp);
+      // });
+    });
+  }, [updatedUser, user.id]);
+
+  const handleChangedUser = useCallback(
+    async (data: ProfileFormData) => {
       try {
         formRef.current?.setErrors({});
         const schema = Yup.object().shape({
@@ -56,16 +93,52 @@ const Profile: React.FC = () => {
           email: Yup.string()
             .required('E-mail obrigatório')
             .email('Digite um e-mail válido'),
-          password: Yup.string().min(6, 'Senha mínimo 6 digitos'),
+          old_password: Yup.string(),
+          password: Yup.string().when('old_password', {
+            is: val => !!val.length,
+            then: Yup.string().required(),
+            otherwise: Yup.string(),
+          }),
+          password_confirmation: Yup.string()
+            .when('old_password', {
+              is: val => !!val.length,
+              then: Yup.string().required(),
+              otherwise: Yup.string(),
+            })
+            .oneOf([Yup.ref('password'), undefined], 'Confirmação incorreta'),
         });
 
         await schema.validate(data, {
           // abortEarly ira mostrar todos os erros,caso nao informe ele mostra apenas o primeiro
           abortEarly: false,
         });
-        await api.post('/user', data);
 
-        Alert.alert('Cadastro realizado com sucesso');
+        const {
+          name,
+          email,
+          old_password,
+          password,
+          password_confirmation,
+        } = data;
+
+        const formData = {
+          name,
+          email,
+          ...(data.old_password
+            ? {
+                old_password,
+                password,
+                password_confirmation,
+              }
+            : {}),
+        };
+
+        const { data: responsePutProfile } = await api.put(
+          '/profile',
+          formData,
+        );
+        updatedUser(responsePutProfile);
+        Alert.alert('Perfil atualizado com sucesso');
         navigation.goBack();
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -73,13 +146,10 @@ const Profile: React.FC = () => {
           formRef.current?.setErrors(errors);
           return;
         }
-        Alert.alert(
-          'Erro na autenticação',
-          'Ocorreu um erro ao fazer login, cheque as credenciais',
-        );
+        Alert.alert('Erro na atualização do perfil, tente novamente');
       }
     },
-    [navigation],
+    [navigation, updatedUser],
   );
 
   return (
@@ -96,13 +166,13 @@ const Profile: React.FC = () => {
           <BackButton onPress={handleGoBack}>
             <Icon name="chevron-left" size={24} color="#999591" />
           </BackButton>
-          <UserAvatarButton>
+          <UserAvatarButton onPress={handleUpdateAvatar}>
             <UserAvatar source={{ uri: user.avatar_url }} />
           </UserAvatarButton>
           <View>
             <Title>Meu perfil</Title>
           </View>
-          <Form ref={formRef} onSubmit={handleSignUp}>
+          <Form initialData={user} ref={formRef} onSubmit={handleChangedUser}>
             <Input
               autoCorrect
               autoCapitalize="words"

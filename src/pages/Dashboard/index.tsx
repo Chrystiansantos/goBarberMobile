@@ -35,6 +35,7 @@ const Dashboard: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
 
   const navigateToProfile = useCallback(() => {
+    // signOut();
     navigate('Profile');
   }, [navigate]);
 

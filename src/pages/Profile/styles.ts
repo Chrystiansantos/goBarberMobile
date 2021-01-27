@@ -21,7 +21,7 @@ export const Title = styled.Text`
   text-align: left;
 `;
 
-export const UserAvatarButton = styled(TouchableOpacity)`
+export const UserAvatarButton = styled.TouchableOpacity`
   margin-top: 64px;
 `;
 
