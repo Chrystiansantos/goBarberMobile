@@ -19,7 +19,9 @@ import api from '../../services/api';
 
 import {
   Container,
+  ButtonHeader,
   BackButton,
+  ButtonSignOut,
   Title,
   UserAvatarButton,
   UserAvatar,
@@ -44,44 +46,36 @@ const Profile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   const navigation = useNavigation();
-  const { user, updatedUser } = useAuth();
+  const { user, updatedUser, signOut } = useAuth();
 
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
 
-  const handleUpdateAvatar = useCallback(() => {
-    ImagePicker.openPicker({
+  const handleSignOut = useCallback(() => {
+    signOut();
+  }, [signOut]);
+
+  const handleUpdateAvatar = useCallback(async () => {
+    const { sourceURL } = await ImagePicker.openPicker({
       width: 300,
       height: 400,
       cropping: true,
-    }).then(image => {
-      if (image.sourceURL) {
-        console.log(JSON.stringify(image));
-        const data = new FormData();
-        data.append('avatar', {
-          type: 'image/jpeg',
-          name: `${user.id}.jpeg`,
-          uri: image.sourceURL,
-        } as any);
-
-        api.patch('/user/avatar', data).then(response => {
-          updatedUser(response.data);
-        });
-      }
-
-      // data.append('avatar', {
-      //   type: 'image/jpeg',
-      //   name: `${user.id}.jpeg`,
-      //   uri: image.path,
-      // } as any);
-
-      // data.append('avatar', image.path, `${user.id}.jpeg`);
-
-      // api.patch('/user/avatar', data).then(resp => {
-      //   console.log(resp);
-      // });
     });
+    if (sourceURL) {
+      const data = new FormData();
+      data.append('avatar', {
+        type: 'image/jpeg',
+        name: `${user.id}.jpeg`,
+        uri: sourceURL,
+      } as any);
+
+      const { data: responseChangeAvatar } = await api.patch(
+        '/user/avatar',
+        data,
+      );
+      updatedUser(responseChangeAvatar);
+    }
   }, [updatedUser, user.id]);
 
   const handleChangedUser = useCallback(
@@ -163,9 +157,14 @@ const Profile: React.FC = () => {
         contentContainerStyle={{ flex: 1 }}
       >
         <Container>
-          <BackButton onPress={handleGoBack}>
-            <Icon name="chevron-left" size={24} color="#999591" />
-          </BackButton>
+          <ButtonHeader>
+            <BackButton onPress={handleGoBack}>
+              <Icon name="chevron-left" size={24} color="#999591" />
+            </BackButton>
+            <ButtonSignOut onPress={handleSignOut}>
+              <Icon name="power" size={24} color="#999591" />
+            </ButtonSignOut>
+          </ButtonHeader>
           <UserAvatarButton onPress={handleUpdateAvatar}>
             <UserAvatar source={{ uri: user.avatar_url }} />
           </UserAvatarButton>

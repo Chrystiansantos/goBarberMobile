@@ -9,8 +9,23 @@ export const Container = styled.View`
   padding: 0 30px ${Platform.OS === 'android' ? 150 : 30}px;
 `;
 
-export const BackButton = styled.TouchableOpacity`
+export const ButtonHeader = styled.View`
   margin-top: 40px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  /* display: flex; */
+  /* align-items: center; */
+`;
+
+export const BackButton = styled.TouchableOpacity`
+  /* background-color: red; */
+  /* width: 20px; */
+`;
+export const ButtonSignOut = styled.TouchableOpacity`
+  /* background-color: blue; */
+  /* width: 50%; */
 `;
 
 export const Title = styled.Text`
